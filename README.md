@@ -1,0 +1,1 @@
+goland preferences -> index entire gopath
