@@ -20,7 +20,6 @@ var hub = newHub()
 
 func main() {
 
-
 	//hub := newHub()
 	go hub.run()
 
@@ -34,15 +33,9 @@ func main() {
 		serveWs(hub, w, r)
 	})
 
-
-
 	r := mux.NewRouter()
 
-	//http.Handle("/", r)
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
-
-
-
 
 	srv := &http.Server{
 		Handler:      r,
