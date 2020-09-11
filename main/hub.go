@@ -1,7 +1,6 @@
 package main
 
-// Contains state of rooms and clients
-// Broadcasts messages
+// Maintains state of rooms and clients
 
 type Hub struct {
 	// Registered clients.  Bool is always true

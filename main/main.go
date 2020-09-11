@@ -4,18 +4,29 @@ import (
 	"flag"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 	"html/template"
 	"log"
 	"net/http"
 )
 
 var addr = flag.String("addr", "localhost:8080", "http service address")
-
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
 
 func main() {
 	flag.Parse()
 	log.SetFlags(0)
+
+	hub := newHub()
+	go hub.run()
+
 	http.HandleFunc("/echo", echo)
+	http.HandleFunc("/broadcast", func(w http.ResponseWriter, r *http.Request) {
+		serveWs(hub, w, r)
+	})
 	http.HandleFunc("/", home)
 	log.Fatal(http.ListenAndServe(*addr, nil))
 
@@ -25,6 +36,7 @@ func main() {
 
 	r.HandleFunc("/create", create_room_handler).Methods("POST").Schemes("http")
 	r.HandleFunc("/join/{room_id}", join_room_handler).Methods("GET").Schemes("http")
+
 
 	http.ListenAndServe(":80", r)
 }
@@ -57,7 +69,7 @@ func join_room_handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Joining room: %v\n", vars["room_id"])
 }
 
-// echo request to all clients
+// echo request back to client
 func echo(w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true } // TODO take out for web deployment
 	c, err := upgrader.Upgrade(w, r, nil)
