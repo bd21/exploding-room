@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"time"
 )
 
 var addr = flag.String("addr", "localhost:8080", "http service address")
@@ -15,33 +16,59 @@ var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
+var hub = newHub()
 
 func main() {
+
+
+	//hub := newHub()
+	go hub.run()
+
+	var dir string
+	flag.StringVar(&dir, "dir", ".", "directory to serve files from.  defaults to current directory")
+
 	flag.Parse()
 	log.SetFlags(0)
-
-	hub := newHub()
-	go hub.run()
 
 	http.HandleFunc("/broadcast", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
-	http.HandleFunc("/", home)
-	log.Fatal(http.ListenAndServe(*addr, nil))
-
 
 	r := mux.NewRouter()
+
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
+
+	srv := &http.Server{
+		Handler:      r,
+		Addr:         "127.0.0.1:8000",
+		// Good practice: enforce timeouts for servers you create!
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
+	}
+
 	fmt.Printf("starting...")
+	r.HandleFunc("/create", createRoomHandler).Methods("POST").Schemes("http")
+	r.HandleFunc("/join/{room_id}", joinRoomHandler).Methods("GET").Schemes("http")
 
-	//r.HandleFunc("/create", create_room_handler).Methods("POST").Schemes("http")
-	//r.HandleFunc("/join/{room_id}", join_room_handler).Methods("GET").Schemes("http")
-
-
-	http.ListenAndServe(":80", r)
+	log.Fatal(srv.ListenAndServe())
+	//log.Fatal(http.ListenAndServe(*addr, r))
 }
 
-func home(w http.ResponseWriter, r *http.Request) {
-	homeTemplate.Execute(w, "ws://"+r.Host+"/broadcast")
+func createRoomHandler(w http.ResponseWriter, r *http.Request) {
+	roomId := createRoom(hub, w, r)
+	http.Redirect(w, r, "http://"+r.Host+r.URL.String()+"/"+roomId, http.StatusMovedPermanently)
+}
+
+func joinRoomHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	// TODO check if room exists
+	// TODO retrieve client
+	//if _, ok := hub.rooms[vars["room_id"]]; !ok {
+	//	http.Redirect(w,r,"http://"+r.Host+r.URL.String()+"/"+vars["room_id"], http.StatusNotFound)
+	//}
+
+	// otherwise join the room
+	http.Redirect(w,r,"http://"+r.Host+r.URL.String()+"/"+vars["room_id"], http.StatusNotFound)
 }
 
 var homeTemplate = template.Must(template.New("").Parse(`

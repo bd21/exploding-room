@@ -125,3 +125,23 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	go client.writePump()
 	go client.readPump()
 }
+
+func createRoom(hub *Hub, w http.ResponseWriter, r *http.Request) string {
+	// create a room
+	room := newRoom()
+	// retrieve client
+
+	// add client -> room mapping
+
+	// joinRoom
+	joinRoom(hub, w, r, room.id)
+	return room.id
+}
+
+func joinRoom(hub *Hub, w http.ResponseWriter, r *http.Request, id string) {
+	// check if room exists
+
+	// retrieve client
+
+	// join room
+}
