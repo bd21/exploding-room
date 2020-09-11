@@ -34,9 +34,15 @@ func main() {
 		serveWs(hub, w, r)
 	})
 
+
+
 	r := mux.NewRouter()
 
+	//http.Handle("/", r)
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
+
+
+
 
 	srv := &http.Server{
 		Handler:      r,
@@ -50,8 +56,8 @@ func main() {
 	r.HandleFunc("/create", createRoomHandler).Methods("POST").Schemes("http")
 	r.HandleFunc("/join/{room_id}", joinRoomHandler).Methods("GET").Schemes("http")
 
-	log.Fatal(srv.ListenAndServe())
-	//log.Fatal(http.ListenAndServe(*addr, r))
+	go srv.ListenAndServe()
+	http.ListenAndServe(*addr, r)
 }
 
 func createRoomHandler(w http.ResponseWriter, r *http.Request) {
