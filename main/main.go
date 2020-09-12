@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-var addr = flag.String("addr", "localhost:8080", "http service address")
+var addr = flag.String("addr", ":8080", "http service address")
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -31,11 +31,7 @@ func main() {
 
 	http.ListenAndServe(*addr, nil)
 
-	//var dir string
-	//flag.StringVar(&dir, "dir", ".", "directory to serve files from.  defaults to current directory")
-
 	r := mux.NewRouter()
-	//r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
 
 	r.HandleFunc("/create", createRoomHandler).Methods("POST").Schemes("http")
 	r.HandleFunc("/join/{room_id}", joinRoomHandler).Methods("GET").Schemes("http")
