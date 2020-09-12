@@ -78,6 +78,14 @@ body {
   color: black;
 }
 
+#room-id-status {
+  background-color: #EFD9CE;
+  width: 80%;
+}
+
+#room-id {
+  color: #333333;
+}
 /*
  * Header
  */

@@ -51,19 +51,24 @@
 <!--                </form>-->
               </a>
             </p>
+            <p class="lead">
+              <a href="#" id="room-id-status" class="btn btn-lg btn-secondary">
+                <span id="room-id" class="align-middle">
+                  Current Room: None
+                </span>
+              </a>
+
+            </p>
           </div>
         </div>
+
       <div id="chat-container">
         <table>
           <tr><td valign="top" width="50%">
-              <p class="lead">Click "Open" to create a connection to the server,
-                "Send" to send a message to the server and "Close" to close the connection.
-                You can change the message and send multiple times.
-              </p>
-                <form>
+              <form>
                 <input id="input" type="text" value="Hello world!">
                 <button id="send">Send</button>
-                </form>
+              </form>
             </td>
           </tr>
           <tr>
@@ -73,7 +78,6 @@
           </tr>
         </table>
       </div>
-
     </div>
 
 
@@ -93,14 +97,14 @@
           }
           ws = new WebSocket("ws://" + document.location.host + "/broadcast");
           ws.onopen = function(evt) {
-            print("OPEN");
+            print("You joined the room.");
           }
           ws.onclose = function(evt) {
-            print("CLOSE");
+            print("You left the room.");
             ws = null;
           }
           ws.onmessage = function(evt) {
-            print("RESPONSE: " + evt.data);
+            print("Receive: " + evt.data);
           }
           ws.onerror = function(evt) {
             print("ERROR: " + evt.data);
@@ -111,7 +115,7 @@
           if (!ws) {
             return false;
           }
-          print("SEND: " + input.value);
+          print("You: " + input.value);
           ws.send(input.value);
           return false;
         };

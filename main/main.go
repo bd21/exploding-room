@@ -28,7 +28,8 @@ func main() {
 	http.HandleFunc("/broadcast", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
-
+	
+	fmt.Printf("starting...")
 	http.ListenAndServe(*addr, nil)
 
 	r := mux.NewRouter()
@@ -36,7 +37,7 @@ func main() {
 	r.HandleFunc("/create", createRoomHandler).Methods("POST").Schemes("http")
 	r.HandleFunc("/join/{room_id}", joinRoomHandler).Methods("GET").Schemes("http")
 
-	fmt.Printf("starting...")
+
 
 
 }
