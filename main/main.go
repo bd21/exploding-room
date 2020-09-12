@@ -8,53 +8,58 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"time"
 )
 
 var addr = flag.String("addr", "localhost:8080", "http service address")
+
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
-var hub = newHub()
 
 func main() {
 
-	//hub := newHub()
+	flag.Parse()
+	hub := newHub()
 	go hub.run()
 
-	var dir string
-	flag.StringVar(&dir, "dir", ".", "directory to serve files from.  defaults to current directory")
-
-	flag.Parse()
-	log.SetFlags(0)
-
+	http.HandleFunc("/", serveHome)
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.HandleFunc("/broadcast", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
 
+	http.ListenAndServe(*addr, nil)
+
+	//var dir string
+	//flag.StringVar(&dir, "dir", ".", "directory to serve files from.  defaults to current directory")
+
 	r := mux.NewRouter()
+	//r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
 
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
-
-	srv := &http.Server{
-		Handler:      r,
-		Addr:         "127.0.0.1:8000",
-		// Good practice: enforce timeouts for servers you create!
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
-	}
-
-	fmt.Printf("starting...")
 	r.HandleFunc("/create", createRoomHandler).Methods("POST").Schemes("http")
 	r.HandleFunc("/join/{room_id}", joinRoomHandler).Methods("GET").Schemes("http")
 
-	go srv.ListenAndServe()
-	http.ListenAndServe(*addr, r)
+	fmt.Printf("starting...")
+
+
+}
+
+func serveHome(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.URL)
+	if r.URL.Path != "/" {
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	}
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	http.ServeFile(w, r, "index.html")
 }
 
 func createRoomHandler(w http.ResponseWriter, r *http.Request) {
-	roomId := createRoom(hub, w, r)
+	roomId := "3"//createRoom(hub, w, r)
 	http.Redirect(w, r, "http://"+r.Host+r.URL.String()+"/"+roomId, http.StatusMovedPermanently)
 }
 
