@@ -24,6 +24,7 @@ type Hub struct {
 
 func newHub() *Hub {
 	return &Hub{
+		rooms: make(map[string]*Room),
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),

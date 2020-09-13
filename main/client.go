@@ -131,17 +131,23 @@ func createRoom(hub *Hub, w http.ResponseWriter, r *http.Request) string {
 	room := newRoom()
 	// retrieve client
 
-	// add client -> room mapping
+	// add room mapping
+	hub.rooms[room.id] = room
 
-	// joinRoom
-	joinRoom(hub, w, r, room.id)
 	return room.id
 }
 
-func joinRoom(hub *Hub, w http.ResponseWriter, r *http.Request, id string) {
-	// check if room exists
-
+func joinRoom(hub *Hub, id string) string {
 	// retrieve client
 
 	// join room
+
+	return  ""
+}
+
+func roomExists(hub *Hub, id string) bool {
+	if _, ok := hub.rooms[id]; ok {
+		return true
+	}
+	return false
 }
