@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -17,10 +18,12 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+var hub = newHub()
+
 func main() {
 
 	flag.Parse()
-	hub := newHub()
+
 	go hub.run()
 
 	http.HandleFunc("/", serveHome)
@@ -28,17 +31,13 @@ func main() {
 	http.HandleFunc("/broadcast", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
-	
-	fmt.Printf("starting...")
+
+	http.HandleFunc("/create", createRoomHandler)
+	http.HandleFunc("/join/{room-id}", joinRoomHandler)
+
+
+	fmt.Println("starting...")
 	http.ListenAndServe(*addr, nil)
-
-	r := mux.NewRouter()
-
-	r.HandleFunc("/create", createRoomHandler).Methods("POST").Schemes("http")
-	r.HandleFunc("/join/{room_id}", joinRoomHandler).Methods("GET").Schemes("http")
-
-
-
 
 }
 
@@ -56,8 +55,16 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 }
 
 func createRoomHandler(w http.ResponseWriter, r *http.Request) {
-	roomId := "3"//createRoom(hub, w, r)
-	http.Redirect(w, r, "http://"+r.Host+r.URL.String()+"/"+roomId, http.StatusMovedPermanently)
+	roomId := createRoom(hub, w, r)
+	fmt.Println("Created room: " + roomId)
+
+	d := map[string]string{"room-id": roomId}
+
+	response, _ := json.Marshal(d)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(response)
+	//http.Redirect(w, r, "http://" + "localhost" + *addr + "/join" + "/"+roomId, http.StatusCreated)
 }
 
 func joinRoomHandler(w http.ResponseWriter, r *http.Request) {

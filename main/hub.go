@@ -4,11 +4,11 @@ package main
 //
 type Hub struct {
 
-	// map the client to the room the client is subscribed to
-	rooms map[*Client]*Room
+	// map the room id to the room
+	// this is used to route messages
+	rooms map[string]*Room
 
 	// Registered clients.  Bool is always true
-	// TODO should probably remove this and just use the rooms
 	clients map[*Client]bool
 
 	// Inbound messages from the clients.
@@ -32,7 +32,7 @@ func newHub() *Hub {
 }
 
 // handles register, unregister, and broadcast events
-// broadcast messages to the right rooms TODO
+// broadcast messages to the right rooms
 func (h *Hub) run() {
 	for {
 		select {

@@ -16,7 +16,7 @@ const (
 var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 
-// A room exists in db and memory and ties an ID to a list of Clients
+// A room exists in memory and ties an ID to a list of Clients
 type Room struct {
 	// 5 letter id
 	id string

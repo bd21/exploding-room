@@ -82,6 +82,10 @@
 
 
     <script>
+
+      var currentRoomId = null;
+      var username = null;
+
       window.addEventListener("load", function(evt) {
         var output = document.getElementById("output");
         var input = document.getElementById("input");
@@ -91,32 +95,77 @@
           d.textContent = message;
           output.appendChild(d);
         };
-        document.getElementById("create-room-button").onclick = function(evt) {
-          if (ws) {
-            return false;
-          }
-          ws = new WebSocket("ws://" + document.location.host + "/broadcast");
-          ws.onopen = function(evt) {
-            print("You joined the room.");
-          }
-          ws.onclose = function(evt) {
-            print("You left the room.");
-            ws = null;
-          }
-          ws.onmessage = function(evt) {
-            print("Receive: " + evt.data);
-          }
-          ws.onerror = function(evt) {
-            print("ERROR: " + evt.data);
-          }
+
+        if (ws) {
           return false;
+        }
+        ws = new WebSocket("ws://" + document.location.host + "/broadcast");
+        ws.onopen = function(evt) {
+          print("You joined the room.");
+        }
+        ws.onclose = function(evt) {
+          print("You left the room.");
+          ws = null;
+        }
+        ws.onmessage = function(evt) {
+          print("Room: " + evt.data);
+        }
+        ws.onerror = function(evt) {
+          print("ERROR: " + evt.data);
+        }
+
+        document.getElementById("create-room-button").onclick = function(evt) {
+          // get the input value
+          $someInput = $('#someInput').val(); // TODO
+          $.ajax({
+            //the url to send the data to
+            url: "create",
+            //the data to send to
+            data: {someInput : $someInput},
+            type: "POST",
+            dataType: "json",
+            //on success
+            success: function(data){
+              $("#room-id").text('Current Room: ' + data['room-id']);
+              currentRoomId = data['room-id']
+            },
+            error: function(){
+              //bad request
+            }
+          });
         };
+
+        document.getElementById("join-room-button").onclick = function(evt) {
+          // get the input value
+          $someInput = $('#join-room-button').val();
+          $.ajax({
+            url: "join/" + $someInput,
+            data: {someInput : $someInput},
+            type: "GET",
+            dataType: "json",
+            //on success
+            success: function(data){
+              $("#room-id").text('Current Room: ' + data['room-id']);
+              currentRoomId = data['room-id']
+            },
+            error: function(){
+              //bad request
+            }
+          });
+        };
+
         document.getElementById("send").onclick = function(evt) {
           if (!ws) {
             return false;
           }
-          print("You: " + input.value);
-          ws.send(input.value);
+
+          var request = new Map()
+          request['name'] = 'user'
+          request['action'] = 'send'
+          request['room'] = currentRoomId
+          request['message'] = input.value
+
+          ws.send(JSON.stringify(request));
           return false;
         };
         document.getElementById("close").onclick = function(evt) {
