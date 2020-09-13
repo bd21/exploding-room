@@ -1,5 +1,9 @@
 package main
 
+import (
+	"encoding/json"
+)
+
 // Maintains state of clients and rooms
 //
 type Hub struct {
@@ -19,6 +23,13 @@ type Hub struct {
 
 	// Unregister requests from clients.
 	unregister chan *Client
+}
+
+type Message struct {
+	Name string
+	Action string
+	Room string
+	Message string
 }
 
 
@@ -45,12 +56,17 @@ func (h *Hub) run() {
 					close(client.send) // close the client send channel
 				}
 			case message := <-h.broadcast:
-				for client := range h.clients {
+				// parse message
+				var msg Message
+				json.Unmarshal([]byte(message), &msg)
+
+				// route message to correct client
+				for client := range h.rooms[msg.Room].clients {
 					select {
-						case client.send <- message:
-						default: // if send buffer is full, assume client is dead or stuck, unregister client, close websocket
-							close(client.send)
-							delete(h.clients, client)
+					case client.send <- message:
+					default: // if send buffer is full, assume client is dead or stuck, unregister client, close websocket
+						close(client.send)
+						delete(h.clients, client)
 					}
 				}
 		}
