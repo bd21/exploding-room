@@ -82,7 +82,9 @@
     <script>
 
       var currentRoomId = null;
-      var username = null;
+      const userId = Math.floor((1 + Math.random()) * 0x10000)
+              .toString(16)
+              .substring(1);
 
       window.addEventListener("load", function(evt) {
         var output = document.getElementById("output");
@@ -158,7 +160,7 @@
           }
 
           var request = new Map()
-          request['name'] = 'user'
+          request['name'] = userId
           request['action'] = 'send'
           request['room'] = currentRoomId
           request['message'] = input.value
