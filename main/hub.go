@@ -13,7 +13,7 @@ type Hub struct {
 	rooms map[string]*Room
 
 	// Registered clients.  Bool is always true
-	clients map[*Client]bool
+	clients map[string]*Client
 
 	// Inbound messages from the clients.
 	broadcast chan []byte
@@ -40,7 +40,7 @@ func newHub() *Hub {
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
+		clients:    make(map[string]*Client),
 	}
 }
 
@@ -50,26 +50,28 @@ func (h *Hub) run() {
 	for {
 		select {
 			case client := <-h.register:
-				h.clients[client] = true
+				// on registration, add id -> client mapping to pool
+				h.clients[client.id] = client
+
 			case client := <-h.unregister:
-				if _, ok := h.clients[client]; ok {
-					delete(h.clients, client)
+				// remove client from memory and close the client send channel
+				if _, ok := h.clients[client.id]; ok {
+					delete(h.clients, client.id)
 					close(client.send) // close the client send channel
 				}
 			case message := <-h.broadcast: // when a ws message comes in
-
 				// transform it to a Message type
 				var m Message
 				json.Unmarshal(message, &m)
 
-
 				// 3 types of messages - join/leave room, and actual send messages
 				switch m.Action {
 					case "joins":
-						// update room
-						h.rooms[m.Room].clients
+						// find room, lookup client, add to room
+						h.rooms[m.Room].clients[h.clients[m.Name]] = true
 					case "leaves":
-						// update room
+						// find room, remove client from room
+						delete(h.rooms[m.Room].clients, h.clients[m.Name])
 					case "sends":
 						// send message to all clients in that room
 						room := h.rooms[m.Room]
@@ -79,7 +81,7 @@ func (h *Hub) run() {
 
 							default: // if send buffer is full, assume client is dead or stuck, unregister client, close websocket
 								close(client.send)
-								delete(h.clients, client)
+								delete(h.clients, client.id)
 							}
 						}
 					default:

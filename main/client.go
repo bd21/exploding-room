@@ -134,7 +134,7 @@ func createRoom(hub *Hub, w http.ResponseWriter, r *http.Request) string {
 	// create a room
 	room := newRoom()
 	// add this client to the room
-	room.clients[]
+	// TODO room.clients[]
 
 	// add room mapping
 	hub.rooms[room.id] = room
