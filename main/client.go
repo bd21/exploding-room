@@ -133,7 +133,8 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 func createRoom(hub *Hub, w http.ResponseWriter, r *http.Request) string {
 	// create a room
 	room := newRoom()
-	// retrieve client
+	// add this client to the room
+	room.clients[]
 
 	// add room mapping
 	hub.rooms[room.id] = room

@@ -1,6 +1,8 @@
 package main
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 // Maintains state of clients and rooms
 //
@@ -81,6 +83,7 @@ func (h *Hub) run() {
 							}
 						}
 					default:
+
 				}
 
 
