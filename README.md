@@ -1,6 +1,6 @@
 # Exploding-room
 
-A chat room where the chat room disappears every 24 hours.  Check it out at [explodingroom.io](http://explodingroom.io:3000)
+A chat room where the chat room disappears every 24 hours.  Check it out at [explodingroom.io](http://explodingroom.io)
 
 ![exploding room](https://i.imgur.com/zjYRrFY.png)
 
