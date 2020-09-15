@@ -1,10 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -31,10 +29,6 @@ func main() {
 		serveWs(hub, w, r)
 	})
 
-	http.HandleFunc("/create", createRoomHandler)
-	http.HandleFunc("/join/{room-id}", joinRoomHandler)
-
-
 	fmt.Println("starting...")
 	http.ListenAndServe(*addr, nil)
 
@@ -53,28 +47,30 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "index.html")
 }
 
-func createRoomHandler(w http.ResponseWriter, r *http.Request) {
-	roomId := createRoom(hub, w, r)
-	fmt.Println("Created room: " + roomId)
+//func createRoomHandler(w http.ResponseWriter, r *http.Request) {
+//	roomId := createRoom(hub, w, r)
+//	fmt.Println("Created room: " + roomId)
+//
+//	serveWs(hub, w, r)
+//
+//	// build response
+//	d := map[string]string{"room-id": roomId}
+//	response, _ := json.Marshal(d)
+//	w.Header().Set("Content-Type", "application/json")
+//	w.Write(response)
+//	//http.Redirect(w, r, "http://" + "localhost" + *addr + "/join" + "/"+roomId, http.StatusCreated)
+//}
 
-	// build response
-	d := map[string]string{"room-id": roomId}
-	response, _ := json.Marshal(d)
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(response)
-	//http.Redirect(w, r, "http://" + "localhost" + *addr + "/join" + "/"+roomId, http.StatusCreated)
-}
-
-func joinRoomHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	roomId := vars["room_id"]
-	if !roomExists(hub, roomId) {
-		fmt.Println("room does not exist")
-		http.Redirect(w,r,"http://"+r.Host+r.URL.String()+"/"+roomId, http.StatusNotFound)
-	}
-
-	// join the room
-	joinRoom(hub, roomId)
-
-	http.Redirect(w,r,"http://"+r.Host+r.URL.String()+"/"+vars["room_id"], http.StatusOK)
-}
+//func joinRoomHandler(w http.ResponseWriter, r *http.Request) {
+//	vars := mux.Vars(r)
+//	roomId := vars["room_id"]
+//	if !roomExists(hub, roomId) {
+//		fmt.Println("room does not exist")
+//		http.Redirect(w,r,"http://"+r.Host+r.URL.String()+"/"+roomId, http.StatusNotFound)
+//	}
+//
+//	// join the room
+//	joinRoom(hub, roomId)
+//
+//	http.Redirect(w,r,"http://"+r.Host+r.URL.String()+"/"+vars["room_id"], http.StatusOK)
+//}
