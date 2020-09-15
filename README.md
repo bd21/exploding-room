@@ -11,7 +11,7 @@ It's written in GO and uses the Gorilla Websockets library.
 The frontend uses Bootstrap and Websockets to communicate with the backend.
 It's hosted on an EC2 micro instance.
 
-It's all held together by ducttape bubble-gum - I wanted to learn GO and stand this up as fast as possible, not showcase excellent GO.
+It's all held together by duct tape - I wanted to learn GO and stand this up as fast as possible, not showcase excellent GO.
 
 
 ## Features
