@@ -10,7 +10,7 @@ const (
 	roomIdLength = 5
 
 	// character set for room ids
-	charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	charSet = "ABCDEFGHIJKLMNPQRSTUVWXYZ123456789"
 )
 
 var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -40,3 +40,4 @@ func stringWithCharset(length int, charset string) string {
 	}
 	return string(b)
 }
+

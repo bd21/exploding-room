@@ -2,8 +2,10 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
+	"math/rand"
 	"net/http"
 	"time"
 )
@@ -24,8 +26,7 @@ const (
 
 var (
 	newline = []byte{'\n'}
-	space   = []byte{' '}
-)
+	space   = []byte{' '})
 
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
@@ -122,7 +123,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clientId := stringWithCharset(5, charSet)
+	clientId := generateClientName()
 
 	client := &Client{id: clientId, hub: hub, conn: conn, send: make(chan []byte, 256)}
 	client.hub.register <- client
@@ -133,9 +134,15 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	go client.readPump()
 }
 
-func roomExists(hub *Hub, id string) bool {
-	if _, ok := hub.rooms[id]; ok {
-		return true
-	}
-	return false
+// generate a random username in the form: adjective animal
+// i.e. Anonymous Zebra
+func generateClientName() string {
+	randomIndex := rand.Intn(len(clientNameAdjectives))
+	pick := clientNameAdjectives[randomIndex]
+	fmt.Println(pick)
+	randomIndex = rand.Intn(len(clientNameAnimals))
+	pick = pick + " " + clientNameAnimals[randomIndex]
+	fmt.Println(pick)
+
+	return pick
 }

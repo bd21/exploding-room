@@ -132,7 +132,7 @@ func (h *Hub) run() {
 				}
 				for clientKey := range room.clients {
 					select {
-					case room.clients[clientKey].send <- []byte(m.Message):
+					case room.clients[clientKey].send <- []byte(m.Name + ": " + m.Message):
 
 					default: // if send buffer is full, assume client is dead or stuck, unregister client, close websocket
 						close(room.clients[clientKey].send)

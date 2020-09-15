@@ -42,11 +42,7 @@
             <p class="lead">
               <a href="#" id="create-room-button" class="btn btn-lg btn-success"><span class="align-middle">CREATE</br>ROOM</span></a>
               <a href="#" id="join-room-button" class="btn btn-lg btn-primary"><span>JOIN</span><br/>
-<!--                <form class="navbar-form pull-left">-->
-                <span>
-                  <input id="room-input" type="text" class="span2" maxlength="5"><br/>
-                </span>
-<!--                </form>-->
+                    <input id="room-input" type="text" class="span2" maxlength="5"><br/>
               </a>
             </p>
             <p class="lead">
@@ -63,8 +59,8 @@
       <div id="chat-container">
         <table>
           <tr><td valign="top" width="50%">
-              <form>
-                <input id="input" type="text" value="Hello world!">
+              <form id="text-form">
+                <input id="input" type="text" value="">
                 <button id="send">Send</button>
               </form>
             </td>
@@ -87,6 +83,7 @@
       window.addEventListener("load", function(evt) {
         var output = document.getElementById("output");
         var input = document.getElementById("input");
+
         var ws;
         var print = function(message) {
           var d = document.createElement("div");
@@ -106,11 +103,16 @@
           ws = null;
         }
         ws.onmessage = function(evt) {
+          var messageIsEvent = false;
           try {
             // clientId response
             var response = JSON.parse(evt.data)
             if(userId == null) {
               userId = response["client_id"]
+            }
+            if(response["client_id"] != null) {
+              messageIsEvent = true;
+              print("You are chatting as: " + userId)
             }
           } catch(err) {}
 
@@ -118,10 +120,16 @@
             // create room response
             response = JSON.parse(evt.data)
             currentRoomId = response["room_id"]
-            document.getElementById("room-id").innerText="Current Room: " + currentRoomId
+            if(response["room_id"] != null) {
+              document.getElementById("room-id").innerText="Current Room: " + currentRoomId
+              messageIsEvent = true;
+              print("You joined room: " + currentRoomId)
+            }
           } catch(err) {}
 
-          print(evt.data);
+          if(!messageIsEvent) {
+            print(evt.data);
+          }
         }
         ws.onerror = function(evt) {
           print("ERROR: " + evt.data);
@@ -146,7 +154,7 @@
           var request = new Map()
           request['name'] = userId
           request['action'] = 'joins'
-          request['room'] = document.getElementById("room-input").value;
+          request['room'] = document.getElementById("room-input").value.toUpperCase();
 
           ws.send(JSON.stringify(request));
 
@@ -156,6 +164,9 @@
           if (!ws) {
             return false;
           }
+          if(input.value == "") {
+            return false;
+          }
 
           var request = new Map()
           request['name'] = userId
@@ -163,6 +174,7 @@
           request['room'] = currentRoomId
           request['message'] = input.value
 
+          input.value = ""
           ws.send(JSON.stringify(request));
           return false;
         };

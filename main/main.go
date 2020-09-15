@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"os"
 )
 
 var addr = flag.String("addr", ":8080", "http service address")
@@ -17,9 +19,16 @@ var upgrader = websocket.Upgrader{
 
 var hub = newHub()
 
+var clientNameAdjectives []string
+var clientNameAnimals []string
+
 func main() {
 
 	flag.Parse()
+
+	// load client name generator
+	loadClientNames(&clientNameAdjectives, "adjectives.txt")
+	loadClientNames(&clientNameAnimals, "animals.txt")
 
 	go hub.run()
 
@@ -47,30 +56,14 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "index.html")
 }
 
-//func createRoomHandler(w http.ResponseWriter, r *http.Request) {
-//	roomId := createRoom(hub, w, r)
-//	fmt.Println("Created room: " + roomId)
-//
-//	serveWs(hub, w, r)
-//
-//	// build response
-//	d := map[string]string{"room-id": roomId}
-//	response, _ := json.Marshal(d)
-//	w.Header().Set("Content-Type", "application/json")
-//	w.Write(response)
-//	//http.Redirect(w, r, "http://" + "localhost" + *addr + "/join" + "/"+roomId, http.StatusCreated)
-//}
+func loadClientNames(arr *[]string, filename string) {
+	file, _ := os.Open(filename)
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		*arr = append(*arr, scanner.Text())
+	}
 
-//func joinRoomHandler(w http.ResponseWriter, r *http.Request) {
-//	vars := mux.Vars(r)
-//	roomId := vars["room_id"]
-//	if !roomExists(hub, roomId) {
-//		fmt.Println("room does not exist")
-//		http.Redirect(w,r,"http://"+r.Host+r.URL.String()+"/"+roomId, http.StatusNotFound)
-//	}
-//
-//	// join the room
-//	joinRoom(hub, roomId)
-//
-//	http.Redirect(w,r,"http://"+r.Host+r.URL.String()+"/"+vars["room_id"], http.StatusOK)
-//}
+	file.Close()
+
+}
