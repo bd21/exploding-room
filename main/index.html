@@ -99,10 +99,10 @@
 
 
         ws.onopen = function(evt) {
-          print("Websocket opened.");
+          print("Connected.");
         }
         ws.onclose = function(evt) {
-          print("Connection closed.");
+          print("Disconnected.");
           ws = null;
         }
         ws.onmessage = function(evt) {
