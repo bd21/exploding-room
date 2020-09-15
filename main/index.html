@@ -38,7 +38,7 @@
         <div class="cover-container">
           <div class="inner cover">
             <h1 class="cover-heading">EXPLODING ROOM</h1>
-            <p class="lead">Exploding Room is an disposable chat room.  You have 24 hours, then the room disappears - so make it count!</p>
+            <p id="intro-text" class="lead">Exploding Room is an disposable chat room.  You have 24 hours, then the room disappears - so make it count!</p>
             <p class="lead">
               <a href="#" id="create-room-button" class="btn btn-lg btn-success"><span id="create-room-text" class="align-middle">CREATE</br>ROOM</span></a>
               <a href="#" id="join-room-button" class="btn btn-lg btn-primary"><span>JOIN</span><br/>
@@ -66,7 +66,7 @@
             </td>
           </tr>
           <tr>
-            <td valign="top" width="50%">
+            <td valign="top" width="100%">
               <div id="output"></div>
             </td>
           </tr>
@@ -95,6 +95,9 @@
           return false;
         }
         ws = new WebSocket("ws://" + document.location.host + "/broadcast");
+
+
+
         ws.onopen = function(evt) {
           print("Websocket opened.");
         }
@@ -139,6 +142,8 @@
           if (!ws) {
             return false;
           }
+          document.getElementById("intro-text").style.display = "none"
+
           var request = new Map()
           request['name'] = userId
           request['action'] = 'creates'
@@ -150,6 +155,7 @@
           if (!ws) {
             return false;
           }
+          document.getElementById("intro-text").style.display = "none"
 
           var request = new Map()
           request['name'] = userId
@@ -161,10 +167,7 @@
         };
 
         document.getElementById("send").onclick = function(evt) {
-          if (!ws) {
-            return false;
-          }
-          if(input.value == "") {
+          if (!ws || input.value == "" || currentRoomId == null) {
             return false;
           }
 
