@@ -18,4 +18,4 @@ It's currently hosted on an EC2 micro instance with a gig of ram.  Connections a
 * Destroy rooms after x minutes
 * Persist messages and load old messages when joining a room
 * Automatic reconnecting when connection is lost
-* Support for switching to short polling when WS is not avaliable
+* Support for switching to short polling when WS are not avaliable
