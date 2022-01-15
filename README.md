@@ -1,6 +1,6 @@
 # Exploding-room
 
-A disposable chat room.  My first Go project.  Check it out at [explodingroom.io](http://explodingroom.io)
+A disposable chat room.  My first Go project.  (no longer hosted).
 
 ![exploding room](https://i.imgur.com/zjYRrFY.png)
 
